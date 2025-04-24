@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Movie Recommender{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-dark text-white p-4 mb-4 rounded">
+    <h1 class="display-4">Movie Recommender</h1>
+    <p class="lead">Discover your next favorite movie!</p>
+    <form class="d-flex" action="{{ url_for('search') }}" method="get">
+        <input class="form-control me-2" type="search" name="query" placeholder="Search movies..." aria-label="Search">
+        <button class="btn btn-warning" type="submit">Search</button>
+    </form>
+</div>
+
+<h2 class="mb-3">Popular Movies</h2>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    {% for movie in movies %}
+    <div class="col">
+        <div class="card movie-card h-100" onclick="window.location.href='/movie/{{ movie.imdbID }}'">
+            {% if movie.Poster and movie.Poster != 'N/A' %}
+            <img src="{{ movie.Poster }}" class="card-img-top movie-poster" alt="{{ movie.Title }}">
+            {% else %}
+            <div class="card-img-top movie-poster bg-secondary d-flex align-items-center justify-content-center">
+                <span>No Image Available</span>
+            </div>
+            {% endif %}
+            <div class="card-body text-white" style="background-color: rgba(0, 0, 0, 0.7);">
+                <h5 class="card-title" style="text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);">{{ movie.Title }}</h5>
+                <p class="card-text small" style="color: #dddddd;">{{ movie.Year }}</p>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-warning text-dark me-2">{{ movie.Type }}</span>
+                    {% if movie.imdbRating and movie.imdbRating != 'N/A' %}
+                    <span class="badge bg-info text-dark">{{ movie.imdbRating }} ★</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if recommended_movies %}
+<h2 class="mt-5 mb-3">Recommended For You</h2>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    {% for movie in recommended_movies %}
+    <div class="col">
+        <div class="card movie-card h-100" onclick="window.location.href='/movie/{{ movie.imdbID }}'">
+            {% if movie.Poster and movie.Poster != 'N/A' %}
+            <img src="{{ movie.Poster }}" class="card-img-top movie-poster" alt="{{ movie.Title }}">
+            {% else %}
+            <div class="card-img-top movie-poster bg-secondary d-flex align-items-center justify-content-center">
+                <span>No Image Available</span>
+            </div>
+            {% endif %}
+            <div class="card-body text-white" style="background-color: rgba(0, 0, 0, 0.7);">
+                <h5 class="card-title" style="text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);">{{ movie.Title }}</h5>
+                <p class="card-text small" style="color: #dddddd;">{{ movie.Year }}</p>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-warning text-dark me-2">{{ movie.Type }}</span>
+                    {% if movie.imdbRating and movie.imdbRating != 'N/A' %}
+                    <span class="badge bg-info text-dark">{{ movie.imdbRating }} ★</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

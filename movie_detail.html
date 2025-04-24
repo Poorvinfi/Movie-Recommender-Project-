@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.Title }} - Movie Recommender{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-4">
+        {% if movie.Poster and movie.Poster != 'N/A' %}
+        <img src="{{ movie.Poster }}" class="img-fluid rounded" alt="{{ movie.Title }}">
+        {% else %}
+        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 450px;">
+            <span>No Image Available</span>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1>{{ movie.Title }}</h1>
+        <p class="lead">{{ movie.Genre }}</p>
+        
+        <div class="d-flex mb-3">
+            <span class="badge bg-warning text-dark me-2 fs-6">{{ movie.imdbRating }}</span>
+            <span class="text-muted">{{ movie.imdbVotes }} votes</span>
+        </div>
+        
+        <p><strong>Release Date:</strong> {{ movie.Released }}</p>
+        <p><strong>Runtime:</strong> {{ movie.Runtime }}</p>
+        <p><strong>Director:</strong> {{ movie.Director }}</p>
+        <p><strong>Writer:</strong> {{ movie.Writer }}</p>
+        
+        <h5 class="mt-4">Plot</h5>
+        <p>{{ movie.Plot }}</p>
+        
+        <h5 class="mt-4">Sentiment Analysis</h5>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="sentiment-positive">Positive</h6>
+                        <h4>{{ sentiment.positive }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="sentiment-neutral">Neutral</h6>
+                        <h4>{{ sentiment.neutral }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="sentiment-negative">Negative</h6>
+                        <h4>{{ sentiment.negative }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="progress mb-3">
+            {% set total = sentiment.positive + sentiment.neutral + sentiment.negative %}
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ (sentiment.positive / total) * 100 if total > 0 else 0 }}%"></div>
+            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (sentiment.neutral / total) * 100 if total > 0 else 0 }}%"></div>
+            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ (sentiment.negative / total) * 100 if total > 0 else 0 }}%"></div>
+        </div>
+        <p>Average sentiment score: <span class="
+            {% if sentiment.average > 0.1 %}sentiment-positive
+            {% elif sentiment.average < -0.1 %}sentiment-negative
+            {% else %}sentiment-neutral{% endif %}
+        ">{{ sentiment.average }}</span> (range: -1 to 1)</p>
+    </div>
+</div>
+
+<h3 class="mb-3">Cast</h3>
+<div class="row mb-5">
+    <div class="col">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <ul class="list-group list-group-flush bg-dark">
+                    {% for actor in cast %}
+                    <li class="list-group-item bg-dark text-white border-secondary">{{ actor.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="mb-3">Reviews</h3>
+{% if reviews %}
+<div class="accordion mb-5" id="reviewsAccordion">
+    {% for review in reviews %}
+    <div class="accordion-item bg-dark">
+        <h2 class="accordion-header" id="heading{{ loop.index }}">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+                {{ review.author }} - {{ review.date }}
+            </button>
+        </h2>
+        <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#reviewsAccordion">
+            <div class="accordion-body">
+                {{ review.content }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="mb-5">No reviews available for this movie.</p>
+{% endif %}
+
+<h3 class="mb-3">Similar Movies</h3>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    {% for movie in similar_movies %}
+    <div class="col">
+        <div class="card movie-card h-100" onclick="window.location.href='/movie/{{ movie.imdbID }}'">
+            {% if movie.Poster and movie.Poster != 'N/A' %}
+            <img src="{{ movie.Poster }}" class="card-img-top movie-poster" alt="{{ movie.Title }}">
+            {% else %}
+            <div class="card-img-top movie-poster bg-secondary d-flex align-items-center justify-content-center">
+                <span>No Image Available</span>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.Title }}</h5>
+                <p class="card-text small text-muted">{{ movie.Year }}</p>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-warning text-dark me-2">{{ movie.Type }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
